@@ -1,0 +1,16 @@
+{
+  "name": "twitter-notes",
+  "version": "1.0.0",
+  "description": "An application for leaving Twitter notes on friends and followers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gabriel Ortega",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.4",
+    "oauth": "^0.9.15"
+  }
+}
