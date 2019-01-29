@@ -34,10 +34,18 @@ app.get('/auth/twitter', authenticator.redirectToTwitterLoginPage)
 // Send in consumer tokens and get a request token in return. That token
 // is then going to allow us to "use" the APIs
 
-app.get('/auth/callback', function (req, res) {
-    res.send("This route will handle OAuth as a callback"); // Response on page
+app.get(url.parse(config.oauth_callback).path, function (req, res) {
+    authenticator.authenticate(req, res, function (err) {
+        if (err) {
+            console.log(err); // debug
+            res.sendStatus(401); // User-Error (Something was not found, send request back)
+        } else {
+            res.send(err);
+        }
+    });
 }); // Twitter is going to need to call us back 
 
 app.listen(config.port, function () {
     console.log("Server listening on localhost:%s", config.port); // "%s" is a placeholder for the variable put in next
+    console.log("OAuth callback:%s", url.parse(config.oauth_callback).hostname + url.parse(config.oauth_callback).path);
 }); // Creates server

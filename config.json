@@ -7,5 +7,5 @@
     "consumer_secret": "869RlkHBBHCRZHO2FZc33Zc703JOxSKkAnJFR9LYBrAInpzuRB",
     "oauth_version": "1.0",
     "oauth_signature": "HMAC-SHA1",
-    "oauth_callback": "https://www.example.com/callback"
+    "oauth_callback": "https://gortega713.localtunnel.me/request_token"
 }
