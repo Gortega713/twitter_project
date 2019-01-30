@@ -20,18 +20,30 @@ var oauth = new OAuth(
 
 var twitterCredentials = {
     oauth_token: "",
-    oauth_token_secret: ""
+    oauth_token_secret: "",
+    access_token: "",
+    access_token_secret: "",
+    twitter_id: ""
 }
 
 module.exports = {
+    getCredentials: function () {
+      return twitterCredentials; // Grab JSON object  
+    },
+    // url = API URL
+    // GET = getting something
+    get: function (url, access_token, access_token_secret, callback) {
+        oauth.get.call(oauth, url, access_token, access_token_secret, callback); // Method given by OAUTH // Forward everything we passed in from function call so that way this object can use the same stuff
+    },// Making something
+    post: function (url, access_token, access_token_secret, body, callback) {
+        oauth.post.call(oauth, url, access_token, access_token_secret, body, callback); // ^ Look at GET comment
+    },
     redirectToTwitterLoginPage: function (req, res) {
         oauth.getOAuthRequestToken(function (error, oauth_token, oauth_token_secret, results) {
-            if (error) {
-            // Failure
+            if (error) { // Failure
                 console.log(error);
                 res.send("Authentication Failed!"); // Response for the page
-            } else {
-            // Success
+            } else { // Success
                 twitterCredentials.oauth_token = oauth_token;
                 twitterCredentials.oauth_token_secret = oauth_token_secret;
                 res.redirect(config.authorize_url + '?oauth_token=' + oauth_token); // Go somewhere else as a resposne
@@ -49,17 +61,34 @@ module.exports = {
         
     },
     authenticate: function(req, res, callback) {
-        //twitterCredentials.oauth_token=""; // debug
-        // twitterCredentials.oauth_token_secret=""; // debug
-        if (!(twitterCredentials.oauth_token && twitterCredentials.oauth_token_secret && req.query.oauth_verifier)) {
+        if (!(twitterCredentials.oauth_token && 
+              twitterCredentials.oauth_token_secret && 
+              req.query.oauth_verifier)) {
             return callback("Request does not have all required keys");
         }
-        twitterCredentials.oauth_token="";
-        twitterCredentials.oauth_token_secret="";
-        oauth.getOAuthAccessToken(twitterCredentials.oauth_token, twitterCredentials.oauth_token_secret, req.query.oauth_verifier, function (error, oauth_access_token, oauth.access_token_secret, results) {
+        oauth.getOAuthAccessToken(twitterCredentials.oauth_token, 
+                                  twitterCredentials.oauth_token_secret, 
+                                  req.query.oauth_verifier, 
+                                  function (error, oauth_access_token, oauth_access_token_secret, results) {
             if (error) {
                 return callback(error);
             }
+            oauth.get('https://api.twitter.com/1.1/account/verify_credentials.json', 
+                      oauth_access_token, oauth_access_token_secret, 
+                      function (error, data) {
+                if (error) {
+                    console.log(error);
+                    return callback(error) // Pull the plug
+                 }
+                data = JSON.parse(data);
+                twitterCredentials.access_token = oauth_access_token;
+                twitterCredentials.access_token_secret = oauth_access_token_secret;
+                twitterCredentials.twitter_id = data.id_str; // JSON data that has been parsed. This means we can use it
+//                console.log(twitterCredentials);
+                callback();
+            }); 
+             // Not "GET" from ExpressJS/NodeJS [Callback: We are going to call you back and give you either an error or data]
+             // ^ Target resource in API, TRADE | oauth access token, oauth_access_token_secret | FOR | Access Tokens | FOR | Access to API which gives us data on profile
         });
     }
 }

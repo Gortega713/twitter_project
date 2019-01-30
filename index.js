@@ -29,7 +29,7 @@ app.get('/', function (req, res) {
     res.send("<h3>Hello World</h3>"); // Sends something back as a response if successful
 }); // Routes HTTP request to a specific path, path is root. 
 
-app.get('/auth/twitter', authenticator.redirectToTwitterLoginPage) 
+app.get('/auth/twitter', authenticator.redirectToTwitterLoginPage); 
 // Creates another route, can't do multiple of the same routes. 
 // Send in consumer tokens and get a request token in return. That token
 // is then going to allow us to "use" the APIs
@@ -40,10 +40,28 @@ app.get(url.parse(config.oauth_callback).path, function (req, res) {
             console.log(err); // debug
             res.sendStatus(401); // User-Error (Something was not found, send request back)
         } else {
-            res.send(err);
+            res.send("Authentication Successful!");
         }
     });
 }); // Twitter is going to need to call us back 
+
+app.get('/tweet', function (req, res) {
+    var credentials = authenticator.getCredentials();
+    if (!credentials.access_token || !credentials.access_token_secret) {
+        res.sendStatus(401);
+    }
+    var url = "https://api.twitter.com/1.1/statuses/update.json";
+    authenticator.post(url, credentials.access_token, credentials.access_token_secret, 
+                      {
+        status: "I am tweeting now!"
+    }, function (error, data) {
+        if (error) {
+            return res.status(400).send(error);
+        } else {
+            res.send("Tweet Successful!");
+        }
+    });
+}); // Create new route
 
 app.listen(config.port, function () {
     console.log("Server listening on localhost:%s", config.port); // "%s" is a placeholder for the variable put in next
