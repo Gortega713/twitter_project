@@ -10,6 +10,7 @@ var app = express(); // Creates a new application which we can use all of the fu
 var authenticator = require('./authenticator.js'); // 
 var config = require('./config.json'); // Bring module through
 var url = require('url'); // Middleware
+var queryString = require('querystring'); // Core module
 
 /* 
 What is middleware?
@@ -53,7 +54,7 @@ app.get('/tweet', function (req, res) {
     var url = "https://api.twitter.com/1.1/statuses/update.json";
     authenticator.post(url, credentials.access_token, credentials.access_token_secret, 
                       {
-        status: "I am tweeting now!"
+        status: "Today is Wednesday! That means Open Lab and Capstone groups! Hopefully everything runs smoothly and we create an awesome website for Precision Machining. " // Status = Tweet
     }, function (error, data) {
         if (error) {
             return res.status(400).send(error);
@@ -63,7 +64,63 @@ app.get('/tweet', function (req, res) {
     });
 }); // Create new route
 
+app.get('/search', function (req, res) {
+    var credentials = authenticator.getCredentials();
+    if (!credentials.access_token || !credentials.access_token_secret) {
+        return res.sendStatus(418); // On the way out of function (Failure), send status code message
+    } 
+    var url = "https://api.twitter.com/1.1/search/tweets.json"; // Ready to push into generic "GET"
+    var query = queryString.stringify({ q: 'Ariana Grande'}); // Format in a way to put into url
+    url += '?' + query; // Set up URL with spaces, question marks, etc. Basically format it from JSON
+    authenticator.get(url, credentials.access_token, credentials.access_token_secret, function (error, data) {
+        if (error) {
+            return res.status(400).send(error); // On failure, leave function and send out error to page.
+        }
+        res.send(data);
+    });
+}); // Create new route
+
+app.get('/friends', function (req, res) {
+    /* Copied from ^ search endpoint */
+    var credentials = authenticator.getCredentials();
+    if (!credentials.access_token || !credentials.access_token_secret) {
+        return res.sendStatus(418); // On the way out of function (Failure), send status code message
+    } 
+    var url = "https://api.twitter.com/1.1/friends/list.json"; // Ready to push into generic "GET"
+    if (req.query.cursor) {
+        // If its a cursor collection?
+        url += '?' + queryString.stringify({ cursor: req.query.cursor}); // Set up URL with spaces, question marks, etc. Basically format it from JSON
+         // Cursor = "Filter"
+    }
+    authenticator.get(url, credentials.access_token, credentials.access_token_secret, function (error, data) {
+        if (error) {
+            return res.status(400).send(error); // On failure, leave function and send out error to page.
+        }
+        res.send(data);
+    });
+});
+
 app.listen(config.port, function () {
     console.log("Server listening on localhost:%s", config.port); // "%s" is a placeholder for the variable put in next
     console.log("OAuth callback:%s", url.parse(config.oauth_callback).hostname + url.parse(config.oauth_callback).path);
 }); // Creates server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
