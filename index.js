@@ -11,6 +11,7 @@ var authenticator = require('./authenticator.js'); //
 var config = require('./config.json'); // Bring module through
 var url = require('url'); // Middleware
 var queryString = require('querystring'); // Core module
+var async = require('async');
 
 /* 
 What is middleware?
@@ -88,9 +89,9 @@ app.get('/friends', function (req, res) {
     } 
     var url = "https://api.twitter.com/1.1/friends/list.json"; // Ready to push into generic "GET"
     if (req.query.cursor) {
-        // If its a cursor collection?
+        // If its a cursored collection. A collection that can be read through as pages. Next "page" is next "cursor"
         url += '?' + queryString.stringify({ cursor: req.query.cursor}); // Set up URL with spaces, question marks, etc. Basically format it from JSON
-         // Cursor = "Filter"
+         // Cursor = "Filter" / If there is more than one page, every next url will have a cursor pointing to the next page of data
     }
     authenticator.get(url, credentials.access_token, credentials.access_token_secret, function (error, data) {
         if (error) {
@@ -99,6 +100,40 @@ app.get('/friends', function (req, res) {
         res.send(data);
     });
 });
+
+app.get('/allfriends', function (req, res) {
+    var credentials = authenticator.getCredentials();
+    async.waterfall([
+        // Get friends IDs // Get back 5000 at a time
+        function (callback) {
+            var cursor = -1; // Cursor starts at beginning of collection
+            var ids = []; // Holding zone for IDs, New starting point each request
+            console.log("IDs.length: " + ids.length);
+            async.whilst(function () { // Not a callback. Always checking whilst condition.
+                return cursor != 0; // 0 = End of collection
+                // Returns friends IDs by using an API call
+            }, function () {
+                var url = "https://api.twitter.com/1.1/friends/id.json"; // Ready to push into generic "GET"
+                url += '?' + queryString.stringify({ user_id: credentials.twitter_id, cursor: cursor }); // Stringifys JSON object
+                authenticator.get(url, credentials.access_token, credentials.access_token_secret, function (error, data) {
+                    if (error) {
+                        return res.status(400).send(error); // Get out of function and send status
+                    } 
+                    data = JSON.parse(data); // Make JSON object into something that is able to be used. 
+                    cursor = data.next_cursor_str; // Move forward into data set
+                    ids = ids.concat(data.ids);
+                    callback();
+                }); // Use API call
+            }); // Method of async object // Loop. Basically the async version of while.
+        },
+        // Look up friends data // Can look up 100 friends at a time
+        function (ids, callback) {
+            
+        }
+        
+    ]); // Method of the async object to set up waterfall. PARAMS | Tasks (array of functions), Callback |
+    res.sendStatus(200);
+}); // Create a new endpoint (use for either "GET" or "POST") Finds OUR route
 
 app.listen(config.port, function () {
     console.log("Server listening on localhost:%s", config.port); // "%s" is a placeholder for the variable put in next
