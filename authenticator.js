@@ -24,12 +24,19 @@ var twitterCredentials = {
     access_token: "",
     access_token_secret: "",
     twitter_id: ""
-}
+}; // Pretty self explanatory. Used to hold our credentials
 
 module.exports = {
     getCredentials: function () {
       return twitterCredentials; // Grab JSON object  
     },
+    clearCredentials: function () {
+        twitterCredentials.oauth_token = "";
+        twitterCredentials.oauth_token_secret = "";
+        twitterCredentials.access_token = "";
+        twitterCredentials.access_token_secret = "";
+        twitterCredentials.twitter_id = "";
+    }, // Delete credentials
     // url = API URL
     // GET = getting something
     get: function (url, access_token, access_token_secret, callback) {

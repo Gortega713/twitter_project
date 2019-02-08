@@ -24,6 +24,11 @@ app.use(require('cookie-parser')()); // Middleware is available to root (default
 // "USE" is usually used to mount middleware. "USE" is only available to 
 // code that is after this. Evaluates to an object.
 
+app.set('view engine', 'ejs'); // Anything that has an ejs extension on it will be seen by our engine.
+// "views" = parts of UI. What programmers have decided to give users
+
+app.use(express.static(__dirname + '/public')); // Route defaults to root
+
 // Process: Hits "USE" then evaluates next expression. No first param so default is "/". Moves on to "cookie-parser" which is then evaluated to a function. 
 // The function is then evaluated to an actual function name. The next piece "()" evaluates to a function call
 
@@ -105,6 +110,10 @@ app.get('/friends', function (req, res) {
 });
 
 app.get('/allfriends', function (req, res) {
+    renderMainPageFromTwitter(req, res);
+});
+
+function renderMainPageFromTwitter (req, res) {
     //credentials
     var credentials = authenticator.getCredentials();
     // Get friends IDs // Get back 5000 at a time
@@ -167,7 +176,7 @@ app.get('/allfriends', function (req, res) {
             var getHundredIds = function (i) {
                 // Building our own point in array
                 /*
-                Notes on Math: (This function will be used in TIMES loop (basically a FOR loop))
+                Notes on Math: (This function will be used in async.times loop (basically a FOR loop))
                 First iteration will be zero. Start at "0" of friends. Then, take the array, and get another 100 ids each time.
                 Literally slice each 100
                 */
@@ -194,12 +203,12 @@ app.get('/allfriends', function (req, res) {
                         return res.status(400).send(error); // Status = us / error = Twitter
                     }
                     var friends = JSON.parse(data);
-                    console.log("n: ", n, friends);
+                    // console.log("n: ", n, friends);
                     next(null, friends); // First param is error, second is data
                     
                 })
             }, function (error, friends) { // Next parameter in async.times, will run on NEXT ^
-                friends = friends.reduce(function (previousValue, currentValue, 
+                friends = friends.reduce(function (previousValue, currentValue, // Getting back a multidimensional array , turn it into a regular array
                                                    currentIndex, array) { // Runs a function on each element in an array
                     return previousValue.concat(currentValue); // Telling reduce WHAT to do
                 }, []); // Producing us a new array on result. Complicated but it doesn't matter. Look it up
@@ -207,12 +216,23 @@ app.get('/allfriends', function (req, res) {
                     // We have to tell the sort method, HOW to sort
                     return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); // JSON object has "name" value
                 });
+                res.send(friends);
+                
+                console.log("friends.length: ", friends);
             });
        }
    ]);
-    //After waterfall end, send back status
-    res.sendStatus(200);
-}); // Create a new endpoint (use for either "GET" or "POST") Finds OUR route
+}; // Create a new endpoint (use for either "GET" or "POST") Finds OUR route
+
+
+app.get('/login', function (req, res) {
+    res.render('login'); // Bring me up a valid web page, need to use view engine, view engine = ejs.
+}); // Create new route
+
+app.get('/logout', function (req, res) {
+    authenticator.clearCredentials(); // On way back to logIN, remove credentnials
+    res.redirect('login'); // Bring me up a valid web page, need to use view engine, view engine = ejs.
+}); // Create new route
 
 app.listen(config.port, function () {
     console.log("Server listening on localhost:%s", config.port); // "%s" is a placeholder for the variable put in next
