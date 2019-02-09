@@ -109,6 +109,9 @@ textarea {
   padding: 5px 20px;
   background-color: #afa;
 }
+button.logout {
+    position: absolute;
+}
 
 #notes {
   list-style-type: none;

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <!--  
+    Author: Gabriel Ortega
+    Date: 2.7.19
+    
+    Filename: index.ejs // Main starting point for static resources
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Friends</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="wrapper">
+        <!--    Write to URL bar, localhost:8080/logout // Wipe credentials   -->
+           <a href="/logout">
+           <button type="button" class="logout">Logout
+            </button></a>
+            
+        <!--    Friends Column    -->
+        <div id="friends-column" class="column">
+            <h1>Your Followers</h1>
+            <ul id="friends">
+                <% 
+                // No modifier on tag = Pure JS
+                // Friends arry is in server, we just have to get it here
+                // From huge chunk of data, put one single piece in function
+                friends.forEach(function(friend) { // Array method %>
+                    <!-- Attribute: uid = User ID -->
+                    <!-- EJS tag modifier "=", enclosed code is a variable -->
+                    <li uid="<%= friend.twitter_id %>" class="friend">
+                        <img class="profile-image"
+                             src="<%= friend.profile_image_url %>">
+                             <p>
+                                 <span class="name">
+                                     <%= friend.name %>
+                                 </span>
+                             </p>
+                             <p class="location">
+                                 <%= friend.location %>
+                             </p>
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
+        <!--    Notes Column    -->
+        <div id="notes-column" class="column">
+            <h1>Notes</h1>
+            <ul id="notes">
+                
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>

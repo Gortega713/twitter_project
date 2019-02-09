@@ -32,9 +32,9 @@ app.use(express.static(__dirname + '/public')); // Route defaults to root
 // Process: Hits "USE" then evaluates next expression. No first param so default is "/". Moves on to "cookie-parser" which is then evaluated to a function. 
 // The function is then evaluated to an actual function name. The next piece "()" evaluates to a function call
 
-app.get('/', function (req, res) {
-    res.send("<h3>Hello World</h3>"); // Sends something back as a response if successful
-}); // Routes HTTP request to a specific path, path is root. 
+//app.get('/', function (req, res) {
+//    res.send("<h3>Hello World</h3>"); // Sends something back as a response if successful
+//}); // Routes HTTP request to a specific path, path is root. 
 
 app.get('/auth/twitter', authenticator.redirectToTwitterLoginPage);
 // Creates another route, can't do multiple of the same routes. 
@@ -44,10 +44,9 @@ app.get('/auth/twitter', authenticator.redirectToTwitterLoginPage);
 app.get(url.parse(config.oauth_callback).path, function (req, res) {
     authenticator.authenticate(req, res, function (err) {
         if (err) {
-            console.log(err); // debug
-            res.sendStatus(401); // User-Error (Something was not found, send request back)
+            res.redirect('/login'); // Error on authentication
         } else {
-            res.send("Authentication Successful!");
+            res.redirect('/'); // Show us all friends
         }
     });
 }); // Twitter is going to need to call us back 
@@ -109,7 +108,12 @@ app.get('/friends', function (req, res) {
     });
 });
 
-app.get('/allfriends', function (req, res) {
+app.get('/', function (req, res) {
+    var credentials = authenticator.getCredentials();
+    if (!credentials.access_token || !credentials.access_token_secret) {
+        return res.redirect('/login');
+    }
+    console.log("Loading friends from Twitter");
     renderMainPageFromTwitter(req, res);
 });
 
@@ -216,9 +220,19 @@ function renderMainPageFromTwitter (req, res) {
                     // We have to tell the sort method, HOW to sort
                     return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); // JSON object has "name" value
                 });
-                res.send(friends);
-                
-                console.log("friends.length: ", friends);
+                friends = friends.map(function (friend) {
+                    // Convert stuff from friends that can be passed into EJS and easily read in new file
+                    // Return a custom JSON object
+                    return {
+                        twitter_id: friend.id_str,
+                        for_user: credentials.twitter_id,
+                        name: friend.name,
+                        screen_name: friend.screen_name,
+                        location: friend.location,
+                        profile_image_url: friend.profile_image_url
+                    }
+                }); // runs a function on each element, returns a new array with new values from function
+                res.render('index', { friends: friends }); // redner is how you bring in the web page and join server with web page             
             });
        }
    ]);
