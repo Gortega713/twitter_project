@@ -165,3 +165,6 @@ textarea {
     color: grey;
     float: right;
 } 
+#retweet {
+    float: right;
+}

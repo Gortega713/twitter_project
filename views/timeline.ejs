@@ -13,6 +13,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Your Timeline</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script type="text/javascript" src="main.js"></script>
 </head>
 
@@ -49,6 +50,7 @@
                     <p class="date">
                         <%= tweet.date_created %>
                     </p>
+                    <a href="https://api.twitter.com/1.1/statuses/retweet/<%= tweet.twitter_id %>.json"><i id="retweet" class="fas fa-retweet"></i></a>
                 </li>
                 <% }); %>
             </ul>

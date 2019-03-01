@@ -78,11 +78,11 @@ app.get('/tweet', function (req, res) {
 }); // Create new route
 
 app.get('/timeline', function (req, res) {
-    var credentials = authenticator.getCredentials(); // Make sure we have our credentials
+    var credentials = authenticator.getCredentials();
     if (!credentials.access_token || !credentials.access_token_secret) {
         res.sendStatus(401);
     }
-    var url = "https://api.twitter.com/1.1/statuses/home_timeline.json?include_entities=false"; // Resource URL
+    var url = "https://api.twitter.com/1.1/statuses/home_timeline.json"; // Resource URL
     authenticator.get(url, credentials.access_token, credentials.access_token_secret, function (error, data) { // data = timeline
         if (error) {
             return res.status(400).send(error); // On failure, leave function and send out error to page.
@@ -346,6 +346,22 @@ app.post('/friends/:uid/notes', ensureLogin, function (req, res, next) {
         res.send(note);
     });
 }); // We use POST because we are sending information, use AJAX to send request
+
+app.post('https://api.twitter.com/1.1/statuses/retweet/:id.json', ensureLogin, function (req, res) {
+    console.log("retweet path");
+    var id = req.params.id;
+    var url = "https://api.twitter.com/1.1/statuses/retweet/" + encodeURIComponent(id);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var successResponse = JSON.parse(xhttp.responseText || []);
+        }
+    }
+    xhttp.open('POST', url + ".json", true);
+    xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    xhttp.send();
+    console.log(req.xhr);
+});
 
 // PUT = update
 app.put('/friends/:uid/notes/:noteid', ensureLogin, function (req, res) {
