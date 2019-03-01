@@ -77,7 +77,7 @@ textarea {
 }
 
 #notes-column {
-  position: fixed;
+  position: relative;
   width: 45%;
 }
 
@@ -109,9 +109,6 @@ textarea {
   padding: 5px 20px;
   background-color: #afa;
 }
-button.logout {
-    position: absolute;
-}
 
 #notes {
   list-style-type: none;
@@ -136,3 +133,35 @@ button.logout {
 #notes .add-note:hover {
   opacity: 1.0;
 }
+
+/* Project CSS */
+
+.nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #ffff33;
+}
+
+#nav-item {
+  float: left;
+}
+
+#nav-item a {
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+#nav-item a:hover {
+  background-color: #d9d9d9;
+}
+
+.date {
+    color: grey;
+    float: right;
+} 

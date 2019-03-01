@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!--  
+    Author: Gabriel Ortega
+    Date: 2.28.19
+    
+    Filename: timeline.ejs // Dynamically show timeline
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Your Timeline</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="main.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <nav>
+            <ul class="nav">
+                <li id="nav-item"><a href="/">Friends</a></li>
+                <li id="nav-item" style="float: right"><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+        <div>
+            <ul id="friends">
+                <% 
+                // No modifier on tag = Pure JS
+                // Friends arry is in server, we just have to get it here
+                // From huge chunk of data, put one single piece in function
+                tweets.forEach(function(tweet) { // Array method %>
+                <!-- Attribute: uid = User ID -->
+                <!-- EJS tag modifier "=", enclosed code is a variable -->
+                <li uid="<%= tweet.twitter_id %>" class="friend">
+                    <img class="profile-image" src="<%= tweet.profile_image_url %>">
+                    <p>
+                        <span class="name">
+                            <%= tweet.name %>
+                        </span>
+                    </p>
+                    <p class="location">
+                        <%= tweet.location %>
+                    </p>
+                    <p class="text">
+                        <%= tweet.text %>
+                    </p>
+                    <p class="date">
+                        <%= tweet.date_created %>
+                    </p>
+                </li>
+                <% }); %>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
