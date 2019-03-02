@@ -7,6 +7,7 @@ Filename: index.js // Entry point for node project
 
 var express = require('express'); // In order to make use of express framework, bring it in; synchronous
 var bodyParser = require('body-parser'); // Capable of parsing out request bodies
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var app = express(); // Creates a new application which we can use all of the functions; synchronous
 var authenticator = require('./authenticator.js'); // 
 var config = require('./config.json'); // Bring module through
@@ -347,8 +348,7 @@ app.post('/friends/:uid/notes', ensureLogin, function (req, res, next) {
     });
 }); // We use POST because we are sending information, use AJAX to send request
 
-app.post('https://api.twitter.com/1.1/statuses/retweet/:id.json', ensureLogin, function (req, res) {
-    console.log("retweet path");
+app.get('/retweet/:id', ensureLogin, function (req, res) {
     var id = req.params.id;
     var url = "https://api.twitter.com/1.1/statuses/retweet/" + encodeURIComponent(id);
     var xhttp = new XMLHttpRequest();
@@ -360,7 +360,6 @@ app.post('https://api.twitter.com/1.1/statuses/retweet/:id.json', ensureLogin, f
     xhttp.open('POST', url + ".json", true);
     xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
     xhttp.send();
-    console.log(req.xhr);
 });
 
 // PUT = update
