@@ -347,20 +347,12 @@ app.post('/friends/:uid/notes', ensureLogin, function (req, res, next) {
     });
 }); // We use POST because we are sending information, use AJAX to send request
 
-app.post('https://api.twitter.com/1.1/statuses/retweet/:id.json', ensureLogin, function (req, res) {
-    console.log("retweet path");
-    var id = req.params.id;
-    var url = "https://api.twitter.com/1.1/statuses/retweet/" + encodeURIComponent(id);
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            var successResponse = JSON.parse(xhttp.responseText || []);
-        }
+app.get('/retweet', ensureLogin, function (req, res) {
+    if (res) {
+        res.send("Success?");
+    } else {
+        res.send("Error");
     }
-    xhttp.open('POST', url + ".json", true);
-    xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    xhttp.send();
-    console.log(req.xhr);
 });
 
 // PUT = update
