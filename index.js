@@ -7,6 +7,7 @@ Filename: index.js // Entry point for node project
 
 var express = require('express'); // In order to make use of express framework, bring it in; synchronous
 var bodyParser = require('body-parser'); // Capable of parsing out request bodies
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var app = express(); // Creates a new application which we can use all of the functions; synchronous
 var authenticator = require('./authenticator.js'); // 
 var config = require('./config.json'); // Bring module through
